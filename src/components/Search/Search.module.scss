@@ -1,0 +1,29 @@
+.root {
+  margin-top: 1rem;
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  // dark mode
+  background: #333;
+  color: #ccc;
+
+  &:focus {
+    border-color: #333;
+  }
+
+  &::placeholder {
+    color: #ccc;
+  }
+
+}
+
+.textOutput {
+  margin-top: 1rem;
+  background: transparent;
+}
