@@ -9,7 +9,8 @@
 // DDG.currency('usd', 'eur', 1)
 // DDG.dictionaryDefinition('happy')
 
-  // console.log(searchResults);
+  console.log(searchResults);
+  return;
 
   const url = searchResults.results[0].url
   console.log(url)
