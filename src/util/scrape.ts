@@ -47,6 +47,7 @@ export function html2markdown(html: string) {
   return NodeHtmlMarkdown.translate(html, {
     keepDataImages: false,
     maxConsecutiveNewlines: 2,
-    ignore: ['a', 'img', 'script', 'style', 'svg']
+    ignore: ['a', 'img', 'script', 'style', 'svg', 'header', 'footer', 'nav', 'aside', 'form', 'input', 'button', 'iframe',
+      'object', 'embed', 'video', 'audio', 'canvas', 'map', 'area', 'base', 'link', 'meta', 'title', 'head', 'col', 'colgroup']
   });
 }
