@@ -15,5 +15,5 @@ export * from './spices/statista';
 export * from './spices/stocks';
 export * from './spices/thesaurus';
 export * from './spices/time';
-export { DuckbarImageResult } from './types';
-export { getVQD, SafeSearchType, SearchTimeType } from './util';
+export * from './types';
+export * from './util';

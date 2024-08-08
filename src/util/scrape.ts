@@ -1,21 +1,26 @@
 import {Readability} from "@mozilla/readability";
 import {NodeHtmlMarkdown} from "node-html-markdown";
+import {proxy} from "@src/util/proxy";
+
+export async function scrapeWithTimeout(url: string, timeout: number = 2500): Promise<string> {
+  const abortController = new AbortController();
+
+  return Promise.race<string>([
+    proxy(url, {signal: abortController.signal}).then(r => r.text()),
+    new Promise((_, reject) => setTimeout(() => {
+      abortController.abort();
+      reject(new Error(`${url} timeout`));
+    }, timeout))
+  ]);
+}
 
 export async function scrape(url: string) {
-  const options = {
-    method: 'POST',
-    headers: {
-      'x-rapidapi-key': '25ddb299e8msh2c3c672fc41e54ep120933jsn89a98d5bafb0',
-      'x-rapidapi-host': 'markdown1.p.rapidapi.com',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      url
-    })
-  };
-
-  const response = await fetch('https://markdown1.p.rapidapi.com/html', options);
-  return await response.text();
+  try {
+    return await scrapeWithTimeout(url);
+  } catch (e) {
+    console.error(e);
+    return '';
+  }
 }
 
 export function distillWebpage(html: string) {

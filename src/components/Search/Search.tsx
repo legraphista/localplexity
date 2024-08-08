@@ -6,9 +6,10 @@ import "@uiw/react-markdown-preview/markdown.css";
 
 import css from './Search.module.scss';
 
+
 const _Search = observer(() => {
+
   const search = useSearchStore();
-  const data = search.data;
   return (
     <div className={css.root}>
       <input
@@ -26,7 +27,20 @@ const _Search = observer(() => {
         }}
       />
 
-      <MarkdownPreview source={search.summary} className={css.textOutput}/>
+      {search.statusText && <div className={css.status}>{search.statusText}</div>}
+
+      <MarkdownPreview source={search.summary.text} className={css.textOutput}/>
+
+      {!search.summaryInProgress && search.summary?.usedSources && (
+        <div className={css.sourceList}>
+          {search.summary.usedSources.map((source, i) => (
+            <div key={source.url} className={css.sourceItem}>
+              <img src={source.icon}/>
+              <a href={source.url} target="_blank" rel="noreferrer">[{i+1}] {source.title}</a>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 })

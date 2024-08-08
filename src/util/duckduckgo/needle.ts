@@ -1,4 +1,5 @@
 import type {NeedleOptions, NeedleResponse} from "needle";
+import {proxy} from "@src/util/proxy";
 
 export {NeedleOptions};
 
@@ -32,7 +33,6 @@ class NeedleAgent {
     };
 
     if (data) {
-      fetchOptions.body = JSON.stringify(data);
       if (Array.isArray(fetchOptions.headers)) {
         fetchOptions.headers.push(['Content-Type', 'application/json']);
       } else if (fetchOptions.headers instanceof Headers) {
@@ -44,31 +44,37 @@ class NeedleAgent {
 
     console.log('url', url);
     console.log('fetchOptions', fetchOptions);
-    const response = await fetch('https://cors-proxy1.p.rapidapi.com/v1', {
-      method: 'POST',
-      headers: {
-        'x-rapidapi-key': '25ddb299e8msh2c3c672fc41e54ep120933jsn89a98d5bafb0',
-        'x-rapidapi-host': 'cors-proxy1.p.rapidapi.com',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        url: url,
-        method,
-        // params: {},
-        // data: {},
-        json_data: data,
-        headers: fetchOptions.headers,
-        cookies: {}
-      })
+
+    return proxy(url, {
+      body: data,
+      headers: fetchOptions.headers,
+      method: fetchOptions.method,
     });
-    return response
+
+    // const response = await fetch('https://cors-proxy1.p.rapidapi.com/v1', {
+    //   method: 'POST',
+    //   headers: {
+    //     'x-rapidapi-key': '25ddb299e8msh2c3c672fc41e54ep120933jsn89a98d5bafb0',
+    //     'x-rapidapi-host': 'cors-proxy1.p.rapidapi.com',
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({
+    //     url: url,
+    //     method,
+    //     // params: {},
+    //     // data: {},
+    //     json_data: data,
+    //     headers: fetchOptions.headers,
+    //     cookies: {}
+    //   })
+    // });
+    // return response
   }
 
   async processResponse(response: Response): Promise<NeedleResponse> {
     const {body, ...rest} = response;
 
-    const data = await response.json();
-    const text = data.text;
+    const text = await response.text();
     return {
       ...rest,
       body: text,

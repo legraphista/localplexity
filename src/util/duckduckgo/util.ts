@@ -51,7 +51,7 @@ export async function getVQD(query: string, ia = 'web', options?: NeedleOptions)
 }
 
 export function ensureJSON(body: any) {
-  if (body instanceof Buffer) return JSON.parse(body.toString());
+  if (body instanceof ArrayBuffer) return JSON.parse(body.toString());
   else if (typeof body === 'string') return JSON.parse(body);
   return body;
 }

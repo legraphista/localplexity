@@ -1,10 +1,10 @@
 import {action, computed, makeObservable, observable, runInAction} from "mobx";
 import {DataFrame} from "@src/stores/DataFrame";
 import {createContext} from "@src/util/react-context-builder";
-// import {bingSearch, search, SearchResults} from "@src/util/web-search";
-import {bingSearch, webSearch} from "@src/util/web-search";
+import {webSearchDDG} from "@src/util/web-search";
 import {distillWebpage, html2markdown, scrape} from "@src/util/scrape";
 import {makeSummaryWebLLM} from "@src/util/webllm";
+import {Readability} from "@mozilla/readability";
 
 class SearchStore extends DataFrame<{
   searchResultsUrls: string[],
@@ -20,18 +20,44 @@ class SearchStore extends DataFrame<{
   searchResultsUrls: string[] = [];
 
   @observable
+  scrapedSites: { url: string, html: string, parsed: ReturnType<Readability['parse']> }[] = [];
+
+  @observable
   markdowns: string[] = [];
 
   @observable
   summaryRaw: string = '';
 
+  @observable
+  statusText: string | null = null;
+
+  @observable
+  summaryInProgress = false;
+
   @computed
   get summary() {
     let summary = this.summaryRaw.trim();
+
+    const usedSources: {url: string, title: string, icon: string}[] = [];
+
     for(let i = 0; i < this.markdowns.length; i++) {
-      summary = summary.replace(new RegExp(`(?:\\[|\\<)source\\s?${i + 1}(?:\\]|\\>)`, 'gi'), `[\\[${i + 1}\\]](${this.searchResultsUrls[i]})`);
+      if (summary.indexOf(`[source ${i + 1}]`) === -1) {
+        continue
+      }
+      const sourceURL = this.searchResultsUrls[i];
+      usedSources.push({
+        url: sourceURL,
+        title: this.scrapedSites[i].parsed.title,
+        icon: `https://www.google.com/s2/favicons?domain=${new URL(sourceURL).host}&sz=64`
+      });
+
+      summary = summary.replace(
+        new RegExp(`(?:\\[|\\<)source\\s?${i + 1}(?:\\]|\\>)`, 'gi'),
+        `[\\[${usedSources.length}\\]](${sourceURL})`
+      );
     }
-    return summary;
+
+    return {text: summary, usedSources};
   }
 
   constructor() {
@@ -50,7 +76,16 @@ class SearchStore extends DataFrame<{
   protected async fetch() {
 
     console.log('fetching', this.query);
-    const searchResults = await webSearch(this.query);
+
+    runInAction(() => {
+      this.summaryRaw = '';
+      this.searchResultsUrls = [];
+      this.markdowns = [];
+      this.scrapedSites = [];
+
+      this.statusText = 'Searching ...';
+    })
+    const searchResults = await webSearchDDG(this.query);
     // mock data
     // const searchResults = {results: [
     //     {url: "https://www.allrecipes.com/article/how-to-boil-an-egg/"},
@@ -61,11 +96,33 @@ class SearchStore extends DataFrame<{
     runInAction(() => {
       this.searchResultsUrls = searchResults.results.map(result => result.url);
     });
-    const firstUrls = searchResults.results.map(result => result.url).slice(0, 3);
+    const candidateUrls = searchResults.results.map(result => result.url).slice(0, 5);
 
-    console.log('scraping', firstUrls);
-    const scrapedSites = await Promise.all(firstUrls.map(scrape));
-    const distilledPages = scrapedSites.map(distillWebpage);
+    console.log('scraping', candidateUrls);
+    runInAction(() => {
+      this.statusText = 'Fetching websites ...';
+    });
+    const scrapedSites = (await Promise.all(candidateUrls.map(scrape)))
+      .map(((x, i) => [candidateUrls[i], x] as const))
+      .filter(([_, x]) => x.trim())
+      .sort(([_, a], [_2, b]) => a.length - b.length)
+      .slice(0, 3);
+
+    if (scrapedSites.length === 0) {
+      throw new Error('No content found');
+    }
+
+    const distilledPages = scrapedSites.map(([_, content]) => distillWebpage(content));
+    runInAction(() => {
+      this.scrapedSites = scrapedSites.map(([url, html], idx) => {
+        return {
+          url,
+          html,
+          parsed: distilledPages[idx]
+        }
+      })
+    })
+
     const markdowns = distilledPages.map(x => html2markdown(`<title>${x.title}</title>\n${x.content}`));
 
     // mock data
@@ -77,11 +134,21 @@ class SearchStore extends DataFrame<{
     });
 
     console.log('making summary', markdowns);
+    runInAction(() => {
+      this.statusText = 'Reading pages ...';
+      this.summaryInProgress = true;
+    });
+
     const summaryRaw = await makeSummaryWebLLM(this.query, markdowns, action((text) => {
+      this.statusText = null;
       this.summaryRaw += text;
-    }))
+    }));
 
     console.log('summary', summaryRaw);
+    runInAction(() => {
+      this.summaryInProgress = false;
+      this.statusText = null;
+    });
     return {
       searchResults,
       markdowns,

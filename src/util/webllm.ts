@@ -63,7 +63,7 @@ Write a short answer to "${query.trim()}" based on the context I will give you. 
 
 Write citations in brackets of the source referenced in the answer, example: "[source 1]", "[source 1] [source 2]". Citations must be next to the information they reference.
 
-The answer must be brief yet informative. Use all sources from the context to create a coherent answer. Remember to write the citations.
+The answer must be informative and well structured. Use all sources from the context to create a coherent answer. Remember to write the citations.
 
 `.trim(),
     },
