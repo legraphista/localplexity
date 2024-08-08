@@ -45,7 +45,7 @@ const Application: React.FC = () => {
     <div id='erwt'>
       <div className='header'>
         <div className='main-heading'>
-          <h1 className='themed'>LibrePlexity</h1>
+          <h1 className='themed'>LocalPlexity</h1>
         </div>
        <Search/>
       </div>
