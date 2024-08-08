@@ -1,14 +1,62 @@
 import {MLCEngine} from "@mlc-ai/web-llm";
 import {LLMChatPipeline} from "@mlc-ai/web-llm/lib/llm_chat";
 import {ChatCompletionMessageParam} from "@mlc-ai/web-llm/lib/openai_api_protocols/chat_completion";
+import {action, computed, makeObservable, observable} from "mobx";
+
+// todo this is a temp class
+//      should move everything to the mobx store
+class WebLLMStatus {
+  @observable
+  loading: boolean = false;
+
+  @observable
+  stepName: string = '';
+
+  @observable
+  chunks: [number, number] = [0, 0];
+
+  @computed
+  get progress() {
+    return this.chunks[1] > 0
+      ? this.chunks[0] / this.chunks[1]
+      : 0;
+  }
+
+  constructor() {
+    makeObservable(this);
+  }
+
+  @action
+  setLoading(loading: boolean) {
+    this.loading = loading;
+  }
+}
+
+export const webLLMStatus = new WebLLMStatus();
+// @ts-ignore
+window.webLLMStatus = webLLMStatus;
 
 const selectedModel = "gemma-2-2b-it-q4f16_1-MLC";
 // const selectedModel = "Llama-3.1-8B-Instruct-q4f16_1-MLC";
 
 const engine = new MLCEngine({
-  initProgressCallback: (initProgress) => {
+  initProgressCallback: action((initProgress) => {
+    const {text, progress} = initProgress;
+
+    if (text.toLowerCase().indexOf('loading model') !== -1) {
+      webLLMStatus.stepName = 'Loading LLM';
+    } else if (text.toLowerCase().indexOf('fetching param') !== -1) {
+      webLLMStatus.stepName = 'Downloading Model';
+    } else if (text.toLowerCase().indexOf('shader modules') !== -1) {
+      webLLMStatus.stepName = 'Compiling Shader Modules';
+    } else {
+      webLLMStatus.stepName = '';
+    }
+
+    webLLMStatus.chunks = (/\[(\d+)\/(\d+)\]/.exec(text)?.slice(1) || [0, 0]).map(Number) as [number, number];
+
     console.log(initProgress);
-  }
+  })
 });
 // @ts-ignore
 window.engine = engine;
@@ -17,6 +65,7 @@ let __loaded = false;
 const load = async () => {
   if (__loaded) return;
   __loaded = true;
+  webLLMStatus.setLoading(true);
   await engine.reload(selectedModel, {
     temperature: 0.0,
     top_p: 0.9,
@@ -26,6 +75,7 @@ const load = async () => {
     // sliding window with glued start
     attention_sink_size: 256,
   });
+  webLLMStatus.setLoading(false);
 }
 
 const loadPromise = load();

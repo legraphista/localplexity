@@ -5,11 +5,17 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import "@uiw/react-markdown-preview/markdown.css";
 
 import css from './Search.module.scss';
+import {types} from "sass";
+import String = types.String;
+import {webLLMStatus} from "@src/util/webllm";
 
 
 const _Search = observer(() => {
 
+
   const search = useSearchStore();
+  const error = search.error;
+
   return (
     <div className={css.root}>
       <input
@@ -27,7 +33,15 @@ const _Search = observer(() => {
         }}
       />
 
+      {webLLMStatus.loading && webLLMStatus.stepName && (
+        <div className={css.status}>
+          {webLLMStatus.stepName} {(webLLMStatus.progress * 100).toFixed(0)}%
+        </div>
+      )}
+
       {search.statusText && <div className={css.status}>{search.statusText}</div>}
+
+      {error && <div className={css.error}>{error.message}</div>}
 
       <MarkdownPreview source={search.summary.text} className={css.textOutput}/>
 
