@@ -14,7 +14,7 @@ class SearchStore extends DataFrame<{
 
   @observable
   // query = "what happened to the market on monday?";
-  query = "how do i boil an egg?";
+  query = "";
 
   @observable
   searchResultsUrls: string[] = [];

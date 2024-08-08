@@ -6,7 +6,6 @@ import "@uiw/react-markdown-preview/markdown.css";
 
 import css from './Search.module.scss';
 import {types} from "sass";
-import String = types.String;
 import {webLLMStatus} from "@src/util/webllm";
 
 
@@ -28,7 +27,9 @@ const _Search = observer(() => {
           if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
-            search.update().catch(e => console.error(e));
+            if (search.query.trim()) {
+              search.update().catch(e => console.error(e));
+            }
           }
         }}
       />
