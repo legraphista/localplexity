@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './Application.scss';
-import { icons } from './Icons';
 import {Search} from "@src/components/Search/Search";
 
 const Application: React.FC = () => {
@@ -47,7 +46,7 @@ const Application: React.FC = () => {
         <div className='main-heading'>
           <h1 className='themed'>LocalPlexity</h1>
         </div>
-       <Search/>
+        <Search/>
       </div>
 
     </div>
