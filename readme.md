@@ -1,4 +1,4 @@
-# [LocalPlexity](https://localplexity.pages.dev/)
+# <img src="https://raw.githubusercontent.com/legraphista/localplexity/master/assets/images/logo.png" alt="LocalPlexity Logo" width="32" height="32"/> [LocalPlexity](https://localplexity.pages.dev/)
 
 [LocalPlexity](https://localplexity.pages.dev/) is a lite version of [Perplexity](https://www.perplexity.ai/) aimed at 100% privacy and openness. Everything is done locally, in your browser, from searching the web to distilling a response for your question.
 
