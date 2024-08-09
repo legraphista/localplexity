@@ -1,4 +1,4 @@
-import {Readability} from "@mozilla/readability";
+const readailityPromise = import('@mozilla/readability');
 import {NodeHtmlMarkdown} from "node-html-markdown";
 import {proxy} from "@src/util/proxy";
 
@@ -23,6 +23,7 @@ export async function scrape(url: string) {
   }
 }
 
+const {Readability} = await readailityPromise;
 export function distillWebpage(html: string) {
   const iframe = document.createElement('iframe');
   iframe.style.display = 'none';

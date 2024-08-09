@@ -1,6 +1,5 @@
-import {MLCEngine} from "@mlc-ai/web-llm";
-import {LLMChatPipeline} from "@mlc-ai/web-llm/lib/llm_chat";
-import {ChatCompletionMessageParam} from "@mlc-ai/web-llm/lib/openai_api_protocols/chat_completion";
+import type {LLMChatPipeline} from "@mlc-ai/web-llm/lib/llm_chat";
+import type {ChatCompletionMessageParam} from "@mlc-ai/web-llm/lib/openai_api_protocols/chat_completion";
 import {action, computed, makeObservable, observable} from "mobx";
 
 // todo this is a temp class
@@ -39,33 +38,34 @@ window.webLLMStatus = webLLMStatus;
 const selectedModel = "gemma-2-2b-it-q4f16_1-MLC";
 // const selectedModel = "Llama-3.1-8B-Instruct-q4f16_1-MLC";
 
-const engine = new MLCEngine({
-  initProgressCallback: action((initProgress) => {
-    const {text, progress} = initProgress;
-
-    if (text.toLowerCase().indexOf('loading model') !== -1) {
-      webLLMStatus.stepName = 'Loading LLM';
-    } else if (text.toLowerCase().indexOf('fetching param') !== -1) {
-      webLLMStatus.stepName = 'Downloading Model';
-    } else if (text.toLowerCase().indexOf('shader modules') !== -1) {
-      webLLMStatus.stepName = 'Compiling Shader Modules';
-    } else {
-      webLLMStatus.stepName = '';
-    }
-
-    webLLMStatus.chunks = (/\[(\d+)\/(\d+)\]/.exec(text)?.slice(1) || [0, 0]).map(Number) as [number, number];
-
-    console.log(initProgress);
-  })
-});
-// @ts-ignore
-window.engine = engine;
-
 let __loaded = false;
 const load = async () => {
   if (__loaded) return;
   __loaded = true;
   webLLMStatus.setLoading(true);
+
+  const {MLCEngine} = await import("@mlc-ai/web-llm");
+
+  const engine = new MLCEngine({
+    initProgressCallback: action((initProgress) => {
+      const {text, progress} = initProgress;
+
+      if (text.toLowerCase().indexOf('loading model') !== -1) {
+        webLLMStatus.stepName = 'Loading LLM';
+      } else if (text.toLowerCase().indexOf('fetching param') !== -1) {
+        webLLMStatus.stepName = 'Downloading Model';
+      } else if (text.toLowerCase().indexOf('shader modules') !== -1) {
+        webLLMStatus.stepName = 'Compiling Shader Modules';
+      } else {
+        webLLMStatus.stepName = '';
+      }
+
+      webLLMStatus.chunks = (/\[(\d+)\/(\d+)\]/.exec(text)?.slice(1) || [0, 0]).map(Number) as [number, number];
+
+      console.log(initProgress);
+    })
+  });
+
   await engine.reload(selectedModel, {
     temperature: 0.0,
     top_p: 0.9,
@@ -76,12 +76,17 @@ const load = async () => {
     attention_sink_size: 256,
   });
   webLLMStatus.setLoading(false);
+
+  // @ts-ignore
+  window.engine = engine;
+
+  return engine;
 }
 
 const loadPromise = load();
 
 export async function makeSummaryWebLLM(query: string, markdowns: string[], progressCallback: (text: string) => void) {
-  await loadPromise;
+  const engine = await loadPromise;
 
   await engine.resetChat(false);
 
