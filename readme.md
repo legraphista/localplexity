@@ -2,6 +2,8 @@
 
 [LocalPlexity](https://localplexity.pages.dev/) is a lite version of [Perplexity](https://www.perplexity.ai/) aimed at 100% privacy and openness. Everything is done locally, in your browser, from searching the web to distilling a response for your question.
 
+You can visit the website at [localplexity.pages.dev](https://localplexity.pages.dev/).
+
 ![LocalPlexity Screenshot](https://raw.githubusercontent.com/legraphista/localplexity/master/assets/images/screenshot.png)
 
 ## Features
