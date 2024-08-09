@@ -120,7 +120,6 @@ class SearchStore extends DataFrame<{
           }
         })
         .filter(({parsed}) => !!parsed)
-        .sort((a, b) => a.parsed.content.length - b.parsed.content.length)
         .slice(0, 3);
 
       if (scrapedSites.length === 0) {
