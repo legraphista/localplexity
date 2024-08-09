@@ -1,0 +1,32 @@
+.fancyTextAnimation {
+  margin-top: 2rem;
+  border-radius: 4px;
+  padding-left: 16px;
+  font-size: 1.5em;
+
+  background: linear-gradient(90deg,
+          #00ccc1,
+          #13a04a,
+          #ffcc00,
+          #ff5733,
+          #00ccc1,
+          #13a04a,
+          #ffcc00,
+          #ff5733,
+          #00ccc1,
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+
+  animation: colorAnimation 2s infinite linear;
+
+  @keyframes colorAnimation {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}

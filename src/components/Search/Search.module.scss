@@ -1,5 +1,22 @@
 .root {
-  margin-top: 1rem;
+  padding-top: 3rem;
+  width: 50%;
+  min-width: 365px;
+  margin: 0 auto;
+  margin-top: 10vh;
+
+  a {
+    color: #00ccc1;
+    text-decoration: none;
+  }
+
+  h1 {
+    font-size: 3.5em;
+    color: #ccc;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 100;
+  }
 }
 
 
@@ -46,32 +63,6 @@
   border-radius: 4px;
   padding-left: 16px;
   font-size: 1.5em;
-
-  background: linear-gradient(90deg,
-          #00ccc1,
-          #13a04a,
-          #ffcc00,
-          #ff5733,
-          #00ccc1,
-          #13a04a,
-          #ffcc00,
-          #ff5733,
-          #00ccc1,
-  );
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 200% 200%;
-
-  animation: colorAnimation 2s infinite linear;
-
-  @keyframes colorAnimation {
-    0% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
 }
 
 .sourceList {
@@ -82,7 +73,7 @@
 
   .sourceItem {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: start;
     margin-bottom: 1em;
 
@@ -103,5 +94,16 @@
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+  }
+}
+
+.intro {
+  margin-top: 2rem;
+  color: #ccc;
+  font-size: 1.5em;
+  padding: 0 0.5em;
+
+  hr {
+    margin-top: 4rem;
   }
 }

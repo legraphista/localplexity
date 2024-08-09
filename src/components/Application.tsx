@@ -43,9 +43,6 @@ const Application: React.FC = () => {
   return (
     <div id='erwt'>
       <div className='header'>
-        <div className='main-heading'>
-          <h1 className='themed'>LocalPlexity</h1>
-        </div>
         <Search/>
       </div>
 
