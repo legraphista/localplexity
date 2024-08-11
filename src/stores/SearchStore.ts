@@ -1,10 +1,11 @@
-import {action, computed, makeObservable, observable, runInAction, toJS} from "mobx";
+import {action, computed, makeObservable, observable, reaction, runInAction, toJS} from "mobx";
 import {DataFrame} from "@src/stores/DataFrame";
 import {createContext} from "@src/util/react-context-builder";
-import {webSearchDDG} from "@src/util/web-search";
+import {webSearchAutoCompleteDDG, webSearchDDG} from "@src/util/web-search";
 import {distillWebpage, html2markdown, scrape} from "@src/util/scrape";
 import {Readability} from "@mozilla/readability";
 import {webLLM} from "@src/util/webllm";
+import {throttle} from "throttle-debounce";
 
 class SearchStore extends DataFrame<{
   searchResultsUrls: string[],
@@ -34,6 +35,15 @@ class SearchStore extends DataFrame<{
   @observable
   summaryInProgress = false;
 
+  @observable
+  autocompleteResults: string[] = [
+    // 'why is the sky blue',
+    // 'how to boil an egg',
+    // 'how to make a cake',
+    // 'how to make a website',
+    // 'how to make a resume',
+  ];
+
   @computed
   get summary() {
     let summary = this.summaryRaw.trim();
@@ -62,17 +72,54 @@ class SearchStore extends DataFrame<{
     return {text: summary, usedSources};
   }
 
+  private disposables: (() => void)[] = [];
+
   constructor() {
     super();
     makeObservable(this);
+
+    this.disposables.push(reaction(
+      () => this.query,
+      throttle(1000, this.refreshAutoComplete, {noLeading: true, noTrailing: false})
+    ))
 
     // @ts-ignore
     window.search = this;
   }
 
+  uninit = () => {
+    for (const disposer of this.disposables) {
+      disposer();
+    }
+  }
+
   @action
   setQuery(query: string) {
     this.query = query
+  }
+
+  refreshAutoComplete = async () => {
+    if (!this.query.trim()) {
+      runInAction(() => {
+        this.autocompleteResults = [];
+      });
+      return;
+    }
+
+    // don't update auto-complete results if already searching
+    if (this.fetching) {
+      return;
+    }
+
+    const results = await webSearchAutoCompleteDDG(this.query);
+
+    // don't update auto-complete results if already searching
+    if (this.fetching) {
+      return;
+    }
+    runInAction(() => {
+      this.autocompleteResults = results.slice(0, 5);
+    });
   }
 
   protected async fetch() {
@@ -85,6 +132,7 @@ class SearchStore extends DataFrame<{
         this.searchResultsUrls = [];
         this.markdowns = [];
         this.scrapedSites = [];
+        this.autocompleteResults = [];
 
         this.statusText = 'Searching ...';
       });
@@ -195,7 +243,9 @@ class SearchStore extends DataFrame<{
 export const {
   useStore: useSearchStore,
   Provider: SearchProvider
-} = createContext(SearchStore)
+} = createContext(SearchStore, {
+  dispose: s => s.uninit()
+})
 
 // @ts-ignore
 window.toJS = toJS;

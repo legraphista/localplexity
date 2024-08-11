@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {SearchProvider, useSearchStore} from "@src/stores/SearchStore";
 import {observer} from "mobx-react-lite";
 import MarkdownPreview from "@uiw/react-markdown-preview";
@@ -10,6 +10,99 @@ import commonCss from '@src/components/common.module.scss';
 import {webLLM} from "@src/util/webllm";
 import classNames from "classnames";
 import {ModelSwitch} from "@src/components/Search/ModelSwitch/ModelSwitch";
+
+
+const SearchInput = observer(() => {
+  const search = useSearchStore();
+
+  const [autocompleteIndex, setAutocompleteIndex] = useState(-1);
+
+  useEffect(() => {
+    setAutocompleteIndex(-1);
+  }, [search.query]);
+
+  return (
+    <div
+      className={css.searchContainer}
+      onKeyDown={e => {
+        if(e.code === 'ArrowDown') {
+          setAutocompleteIndex((a) => Math.min(a + 1, search.autocompleteResults.length - 1));
+        }
+        if(e.code === 'ArrowUp') {
+          setAutocompleteIndex((a) => Math.max(a - 1, -1));
+        }
+        if(e.code === 'ArrowRight') {
+          if (autocompleteIndex >= 0) {
+            search.setQuery(search.autocompleteResults[autocompleteIndex]);
+          }
+        }
+        if(e.code === 'Enter') {
+          if (autocompleteIndex >= 0) {
+            search.setQuery(search.autocompleteResults[autocompleteIndex]);
+            search.update().catch(e => console.error(e));
+          }
+        }
+      }}
+    >
+      <div className={css.inputContainer}>
+        <input
+          className={css.input}
+          type="text"
+          placeholder="Search"
+          onChange={e => search.setQuery(e.target.value)}
+          value={search.query}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              e.stopPropagation();
+              if (search.query.trim()) {
+                search.update().catch(e => console.error(e));
+              }
+            }
+          }}
+        />
+
+        <div className={css.autocompleteContainer}>
+          {search.autocompleteResults.map((result, i) => {
+            return (
+              <div
+                key={result}
+                className={classNames(css.item, i === autocompleteIndex && css.active)}
+                onClick={() => {
+                  search.setQuery(result);
+                  search.update().catch(e => console.error(e));
+                }}
+              >
+                {result}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+
+      <div className={css.controls}>
+        <ModelSwitch
+          value={!webLLM.isSmallModel}
+          onChange={webLLM.toggleModel}
+          disabled={webLLM.status.loading || search.fetching}
+          label="Inteligence"
+        />
+
+        {(webLLM.status.loading && webLLM.status.stepName)
+          ? (
+            <div className={classNames(commonCss.fancyTextAnimation)}>
+              {webLLM.status.stepName} {(webLLM.status.progress * 100).toFixed(0)}%
+            </div>
+          )
+          : search.statusText
+            ? <div className={classNames(commonCss.fancyTextAnimation)}>{search.statusText}</div>
+            : null}
+      </div>
+    </div>
+  )
+
+});
 
 
 const _Search = observer(() => {
@@ -28,44 +121,7 @@ const _Search = observer(() => {
     <div className={css.root}>
       <h1 className={classNames(search.fetching && commonCss.fancyTextAnimation)}>LocalPlexity</h1>
 
-
-      <div className={css.searchContainer}>
-        <input
-          className={css.input}
-          type="text"
-          placeholder="Search"
-          onChange={e => search.setQuery(e.target.value)}
-          value={search.query}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              e.stopPropagation();
-              if (search.query.trim()) {
-                search.update().catch(e => console.error(e));
-              }
-            }
-          }}
-        />
-        <div className={css.controls}>
-          <ModelSwitch
-            value={!webLLM.isSmallModel}
-            onChange={webLLM.toggleModel}
-            disabled={webLLM.status.loading || search.fetching}
-            label="Inteligence"
-          />
-
-          {(webLLM.status.loading && webLLM.status.stepName)
-            ? (
-              <div className={classNames(commonCss.fancyTextAnimation)}>
-                {webLLM.status.stepName} {(webLLM.status.progress * 100).toFixed(0)}%
-              </div>
-            )
-            : search.statusText
-              ? <div className={classNames(commonCss.fancyTextAnimation)}>{search.statusText}</div>
-              : null}
-        </div>
-      </div>
-
+      <SearchInput/>
 
       {/*{search.statusText &&*/}
       {/*  <div className={classNames(css.status, commonCss.fancyTextAnimation)}>{search.statusText}</div>}*/}

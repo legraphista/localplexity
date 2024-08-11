@@ -30,8 +30,17 @@ export const webSearchDDG = async (query: string) => {
 window.ddg_search = webSearchDDG
 
 
+const autocompleteCache = new Map<string, string[]>();
 export const webSearchAutoCompleteDDG = async (query: string) => {
-  return autocomplete(query, navigator.language)
+  if (autocompleteCache.has(query)) {
+    return autocompleteCache.get(query);
+  }
+
+  const data = await autocomplete(query, navigator.language);
+  const results = data.map(x => x.phrase);
+  autocompleteCache.set(query, results);
+
+  return results;
 }
 
 // @ts-ignore
