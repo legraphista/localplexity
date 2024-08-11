@@ -38,17 +38,19 @@ class SearchStore extends DataFrame<{
   get summary() {
     let summary = this.summaryRaw.trim();
 
-    const usedSources: {url: string, title: string, icon: string}[] = [];
+    const usedSources: {url: string, title: string, icon: string, origin: string}[] = [];
 
     for(let i = 0; i < this.markdowns.length; i++) {
       if (summary.indexOf(`[source ${i + 1}]`) === -1) {
         continue;
       }
       const sourceURL = this.searchResultsUrls[i];
+      const origin = new URL(sourceURL).host;
       usedSources.push({
         url: sourceURL,
         title: this.scrapedSites[i].parsed.title,
-        icon: `https://www.google.com/s2/favicons?domain=${new URL(sourceURL).host}&sz=64`
+        icon: `https://www.google.com/s2/favicons?domain=${origin}&sz=128`,
+        origin
       });
 
       summary = summary.replace(
@@ -101,7 +103,18 @@ class SearchStore extends DataFrame<{
       runInAction(() => {
         this.searchResultsUrls = searchResults.results.map(result => result.url);
       });
-      const candidateUrls = searchResults.results.map(result => result.url).slice(0, 5);
+      const candidateUrls = searchResults.results
+        .map(result => result.url)
+        // filter out video urls
+        .filter(url => !(
+          url.indexOf('youtube.com') !== -1 ||
+          url.indexOf('youtu.be') !== -1 ||
+          url.indexOf('vimeo.com') !== -1 ||
+          url.indexOf('dailymotion.com') !== -1 ||
+          url.indexOf('v.redd.it') !== -1 ||
+          url.indexOf('tiktok.com') !== -1
+        ))
+        .slice(0, 5);
 
       console.log('scraping', candidateUrls);
       runInAction(() => {

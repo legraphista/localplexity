@@ -28,51 +28,79 @@ const _Search = observer(() => {
     <div className={css.root}>
       <h1 className={classNames(search.fetching && commonCss.fancyTextAnimation)}>LocalPlexity</h1>
 
-      <ModelSwitch
-        value={!webLLM.isSmallModel}
-        onChange={webLLM.toggleModel}
-        disabled={webLLM.status.loading || search.fetching}
-      />
 
-      <input
-        className={css.input}
-        type="text"
-        placeholder="Search"
-        onChange={e => search.setQuery(e.target.value)}
-        value={search.query}
-        onKeyDown={e => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            e.stopPropagation();
-            if (search.query.trim()) {
-              search.update().catch(e => console.error(e));
+      <div className={css.searchContainer}>
+        <input
+          className={css.input}
+          type="text"
+          placeholder="Search"
+          onChange={e => search.setQuery(e.target.value)}
+          value={search.query}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              e.stopPropagation();
+              if (search.query.trim()) {
+                search.update().catch(e => console.error(e));
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+        <div className={css.controls}>
+          <ModelSwitch
+            value={!webLLM.isSmallModel}
+            onChange={webLLM.toggleModel}
+            disabled={webLLM.status.loading || search.fetching}
+            label="Inteligence"
+          />
 
-      {webLLM.status.loading && webLLM.status.stepName && (
-        <div className={classNames(css.status, commonCss.fancyTextAnimation)}>
-          {webLLM.status.stepName} {(webLLM.status.progress * 100).toFixed(0)}%
+          {(webLLM.status.loading && webLLM.status.stepName)
+            ? (
+              <div className={classNames(commonCss.fancyTextAnimation)}>
+                {webLLM.status.stepName} {(webLLM.status.progress * 100).toFixed(0)}%
+              </div>
+            )
+            : search.statusText
+              ? <div className={classNames(commonCss.fancyTextAnimation)}>{search.statusText}</div>
+              : null}
         </div>
-      )}
+      </div>
 
-      {search.statusText && <div className={classNames(css.status, commonCss.fancyTextAnimation)}>{search.statusText}</div>}
+
+      {/*{search.statusText &&*/}
+      {/*  <div className={classNames(css.status, commonCss.fancyTextAnimation)}>{search.statusText}</div>}*/}
 
       {error && <div className={css.error}>{error.message}</div>}
 
-      <MarkdownPreview source={search.summary.text} className={css.textOutput}/>
+      {search.summary.text && (<>
+        <MarkdownPreview source={search.summary.text} className={css.textOutput}/>
 
-      {!search.summaryInProgress && search.summary?.usedSources && (
-        <div className={css.sourceList}>
-          {search.summary.usedSources.map((source, i) => (
-            <div key={source.url} className={css.sourceItem}>
-              <img src={source.icon}/>
-              <a href={source.url} target="_blank" rel="noreferrer">[{i + 1}] {source.title}</a>
-            </div>
-          ))}
-        </div>
-      )}
+        {!search.summaryInProgress && search.summary?.usedSources && (
+          <div className={css.sourceList}>
+            {search.summary.usedSources.map((source, i) => (
+              <div key={source.url} className={css.sourceItem}>
+                <img
+                  src={source.icon}
+                  alt={source.origin}
+                />
+                <div className={css.info}>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    className={css.title}
+                  >
+                    {source.title}
+                  </a>
+                  <div className={css.subtitle}>
+                    [{i + 1}] | {source.origin}
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
+      </>)}
 
       {showIntro && (
         <div className={css.intro}>

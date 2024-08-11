@@ -117,7 +117,11 @@ class WebLLM {
 
   async init() {
     this.disposers.push(
-      reaction(() => this.model, this.load)
+      reaction(() => this.model, () => {
+        // add a small delay for the animation to show
+        // loading the model (like it is right now on the main thread) is stuttering the animation
+        setTimeout(this.load, 100);
+      })
     );
     await this.load();
   }
