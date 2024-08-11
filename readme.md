@@ -43,12 +43,10 @@ ___
 
 ## Usage
 
-1. Start the development server:
+Start the development server:
     ```sh
     yarn start
     ```
-
-2. Open your browser and navigate to `http://localhost:3000`.
 
 ## License
 This project is licensed under the AGPL-3.0 License. See the LICENSE file for details.
