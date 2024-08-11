@@ -55,10 +55,15 @@ class SearchStore extends DataFrame<{
         continue;
       }
       const sourceURL = this.searchResultsUrls[i];
+      const website = this.scrapedSites.find(x => x.url === sourceURL);
+      if(!website) {
+        console.warn('Failed to find website for source', sourceURL);
+        continue;
+      }
       const origin = new URL(sourceURL).host;
       usedSources.push({
         url: sourceURL,
-        title: this.scrapedSites[i].parsed.title,
+        title: website.parsed.title,
         icon: `https://www.google.com/s2/favicons?domain=${origin}&sz=128`,
         origin
       });
@@ -148,9 +153,6 @@ class SearchStore extends DataFrame<{
       //     {url: "https://www.loveandlemons.com/how-to-make-hard-boiled-eggs/"},
       //   ] as any[]};
 
-      runInAction(() => {
-        this.searchResultsUrls = searchResults.results.map(result => result.url);
-      });
       const candidateUrls = searchResults.results
         .map(result => result.url)
         // filter out video urls
@@ -163,6 +165,10 @@ class SearchStore extends DataFrame<{
           url.indexOf('tiktok.com') !== -1
         ))
         .slice(0, 5);
+
+      runInAction(() => {
+        this.searchResultsUrls = candidateUrls;
+      });
 
       console.log('scraping', candidateUrls);
       runInAction(() => {
