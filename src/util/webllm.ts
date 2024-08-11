@@ -31,11 +31,19 @@ class WebLLMStatus {
   }
 }
 
+const SMALL_MODEL = "gemma-2-2b-it-q4f16_1-MLC";
+const LARGE_MODEL = "Llama-3.1-8B-Instruct-q4f16_1-MLC";
+
 class WebLLM {
   status = new WebLLMStatus();
 
   @observable
   model: string = "";
+
+  @computed
+  get isSmallModel() {
+    return this.model === SMALL_MODEL;
+  }
 
   private engine: MLCEngine | null = null;
   private tokenizer: {
@@ -122,7 +130,7 @@ class WebLLM {
 
   @action
   loadPreferredModelName() {
-    this.model = localStorage.getItem('webllm:model') || 'gemma-2-2b-it-q4f16_1-MLC';
+    this.model = localStorage.getItem('webllm:model') || SMALL_MODEL;
   }
   savePreferredModelName() {
     localStorage.setItem('webllm:model', this.model);
@@ -133,8 +141,9 @@ class WebLLM {
     this.model = model;
   }
 
-  switchToSmallModel = () => this.setModel("gemma-2-2b-it-q4f16_1-MLC");
-  switchToLargeModel = () => this.setModel("Llama-3.1-8B-Instruct-q4f16_1-MLC");
+  switchToSmallModel = () => this.setModel(SMALL_MODEL);
+  switchToLargeModel = () => this.setModel(LARGE_MODEL);
+  toggleModel = () => this.setModel(this.isSmallModel ? LARGE_MODEL : SMALL_MODEL);
 
   async summarize(query: string, markdowns: string[], chunkCb: (text: string) => void) {
     // this waits for the engine to be loaded

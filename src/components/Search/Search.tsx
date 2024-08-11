@@ -9,6 +9,7 @@ import commonCss from '@src/components/common.module.scss';
 
 import {webLLM} from "@src/util/webllm";
 import classNames from "classnames";
+import {ModelSwitch} from "@src/components/Search/ModelSwitch/ModelSwitch";
 
 
 const _Search = observer(() => {
@@ -26,6 +27,12 @@ const _Search = observer(() => {
   return (
     <div className={css.root}>
       <h1 className={classNames(search.fetching && commonCss.fancyTextAnimation)}>LocalPlexity</h1>
+
+      <ModelSwitch
+        value={!webLLM.isSmallModel}
+        onChange={webLLM.toggleModel}
+        disabled={webLLM.status.loading || search.fetching}
+      />
 
       <input
         className={css.input}

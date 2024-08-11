@@ -40,12 +40,19 @@ module.exports = [
     ],
   },
   {
-    // Assets loader
-    // More information here https://webpack.js.org/guides/asset-modules/
-    test: /\.(gif|jpe?g|tiff|png|webp|bmp|svg|eot|ttf|woff|woff2)$/i,
-    type: 'asset',
+    // SVG loader
+    test: /\.svg$/,
+    type: 'asset/resource',
     generator: {
-      filename: 'assets/[hash][ext][query]',
-    },
+      filename: 'images/[hash][ext][query]'
+    }
   },
+  {
+    // Other assets loader
+    test: /\.(gif|jpe?g|tiff|png|webp|bmp|eot|ttf|woff|woff2)$/i,
+    type: 'asset/resource',
+    generator: {
+      filename: 'assets/[hash][ext][query]'
+    }
+  }
 ];
