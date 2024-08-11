@@ -50,16 +50,12 @@ const SearchInput = observer(() => {
               e.preventDefault();
               e.stopPropagation();
 
-              if (search.fetching) {
-                return;
-              }
-
               if(autocompleteIndex >= 0) {
                 search.setQuery(search.autocompleteResults[autocompleteIndex]);
               }
 
               if (search.query.trim()) {
-                search.update().catch(e => console.error(e));
+                search.doSearch().catch(e => console.error(e));
               }
             }
           }}
@@ -73,7 +69,7 @@ const SearchInput = observer(() => {
                 className={classNames(css.item, i === autocompleteIndex && css.active)}
                 onClick={() => {
                   search.setQuery(result);
-                  search.update().catch(e => console.error(e));
+                  search.doSearch().catch(e => console.error(e));
                 }}
               >
                 {result}

@@ -149,7 +149,7 @@ class WebLLM {
   switchToLargeModel = () => this.setModel(LARGE_MODEL);
   toggleModel = () => this.setModel(this.isSmallModel ? LARGE_MODEL : SMALL_MODEL);
 
-  async summarize(query: string, markdowns: string[], chunkCb: (text: string) => void) {
+  async summarize(query: string, markdowns: string[], chunkCb: (text: string) => void, abortSignal?: AbortSignal) {
     // this waits for the engine to be loaded
     // and prevents multiple calls to the engine
     await this.__LLM_LOCK.acquire();
@@ -218,6 +218,11 @@ ${x.trim()}
 
       let message = "";
       for await (const chunk of asyncChunkGenerator) {
+        if(abortSignal?.aborted) {
+          await engine.interruptGenerate();
+          break;
+        }
+
         // console.log(chunk);
         const textChunk = chunk.choices[0]?.delta?.content || "";
         message += textChunk;
@@ -228,7 +233,7 @@ ${x.trim()}
           // only last chunk has usage
           console.log(chunk.usage);
         }
-        // engine.interruptGenerate();
+
       }
 
       return message;

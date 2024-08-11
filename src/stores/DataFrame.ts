@@ -26,7 +26,7 @@ export abstract class DataFrame<T, FetchT = any> {
     }
   }
 
-  protected abstract fetch(): Promise<FetchT>
+  protected abstract fetch(abortSignal: AbortSignal): Promise<FetchT>
 
   protected postProcess(fetchedData: FetchT): T {
     return fetchedData as unknown as T;
@@ -47,17 +47,19 @@ export abstract class DataFrame<T, FetchT = any> {
     this.fetching = fetching;
   }
 
-  private internalFetch = async () => {
+  private internalFetch = async (abortSignal?: AbortSignal) => {
     this.setFetching(true);
 
     const myFetchId = ++this.lastUpdateRequest;
+
+    abortSignal = abortSignal || new AbortController().signal;
 
     try {
       if (!this.keepPreviousDataWhiteFetching) {
         this.setData(null);
       }
       this.setError(null);
-      const rawData = await this.fetch();
+      const rawData = await this.fetch(abortSignal);
 
       if (this.lastUpdateRequest !== myFetchId) {
         return console.warn(`Preventing DataFrame ${this.constructor.name} from manifesting outdated results`);
@@ -73,10 +75,10 @@ export abstract class DataFrame<T, FetchT = any> {
     }
   }
 
-  async get(update: boolean = false): Promise<T> {
+  async get(update: boolean = false, abortSignal?: AbortSignal): Promise<T> {
 
     if (update || (!this.data && !this.fetching)) {
-      this.promise = this.internalFetch();
+      this.promise = this.internalFetch(abortSignal);
     }
 
     await this.promise;
@@ -103,5 +105,5 @@ export abstract class DataFrame<T, FetchT = any> {
     return this;
   }
 
-  update = () => this.get(true);
+  update = (abortSignal?: AbortSignal) => this.get(true, abortSignal);
 }
