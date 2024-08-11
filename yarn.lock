@@ -973,6 +973,11 @@ arraybuffer.prototype.slice@^1.0.3:
     is-array-buffer "^3.0.4"
     is-shared-array-buffer "^1.0.2"
 
+async-await-mutex-lock@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/async-await-mutex-lock/-/async-await-mutex-lock-1.0.11.tgz#445f8ebdcac0bbbf9aecb537c83005a1b0c1fe07"
+  integrity sha512-R2R6ITf/q3o/cU6XknJCG+5ya2UgdC/73mTVkYvoyoJP6B0+K6FG9MuxIycR627Exn4fA/nqgHhDw58txzkfgw==
+
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"

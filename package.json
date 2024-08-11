@@ -45,6 +45,7 @@
     "@mozilla/readability": "^0.5.0",
     "@types/needle": "^3.3.0",
     "@uiw/react-markdown-preview": "^5.1.2",
+    "async-await-mutex-lock": "^1.0.11",
     "classnames": "^2.5.1",
     "dotenv": "^16.4.5",
     "jsdom": "^24.1.1",

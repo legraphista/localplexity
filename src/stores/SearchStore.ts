@@ -3,8 +3,8 @@ import {DataFrame} from "@src/stores/DataFrame";
 import {createContext} from "@src/util/react-context-builder";
 import {webSearchDDG} from "@src/util/web-search";
 import {distillWebpage, html2markdown, scrape} from "@src/util/scrape";
-import {makeSummaryWebLLM} from "@src/util/webllm";
 import {Readability} from "@mozilla/readability";
+import {webLLM} from "@src/util/webllm";
 
 class SearchStore extends DataFrame<{
   searchResultsUrls: string[],
@@ -146,7 +146,7 @@ class SearchStore extends DataFrame<{
         this.summaryInProgress = true;
       });
 
-      const summaryRaw = await makeSummaryWebLLM(this.query, markdowns, action((text) => {
+      const summaryRaw = await webLLM.summarize(this.query, markdowns, action((text) => {
         this.statusText = null;
         this.summaryRaw += text;
       }));

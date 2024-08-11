@@ -7,7 +7,7 @@ import "@uiw/react-markdown-preview/markdown.css";
 import css from './Search.module.scss';
 import commonCss from '@src/components/common.module.scss';
 
-import {webLLMStatus} from "@src/util/webllm";
+import {webLLM} from "@src/util/webllm";
 import classNames from "classnames";
 
 
@@ -44,9 +44,9 @@ const _Search = observer(() => {
         }}
       />
 
-      {webLLMStatus.loading && webLLMStatus.stepName && (
+      {webLLM.status.loading && webLLM.status.stepName && (
         <div className={classNames(css.status, commonCss.fancyTextAnimation)}>
-          {webLLMStatus.stepName} {(webLLMStatus.progress * 100).toFixed(0)}%
+          {webLLM.status.stepName} {(webLLM.status.progress * 100).toFixed(0)}%
         </div>
       )}
 
