@@ -36,12 +36,6 @@ const SearchInput = observer(() => {
             search.setQuery(search.autocompleteResults[autocompleteIndex]);
           }
         }
-        if(e.code === 'Enter') {
-          if (autocompleteIndex >= 0) {
-            search.setQuery(search.autocompleteResults[autocompleteIndex]);
-            search.update().catch(e => console.error(e));
-          }
-        }
       }}
     >
       <div className={css.inputContainer}>
@@ -55,6 +49,11 @@ const SearchInput = observer(() => {
             if (e.key === 'Enter') {
               e.preventDefault();
               e.stopPropagation();
+
+              if(autocompleteIndex >= 0) {
+                search.setQuery(search.autocompleteResults[autocompleteIndex]);
+              }
+
               if (search.query.trim()) {
                 search.update().catch(e => console.error(e));
               }
@@ -122,9 +121,6 @@ const _Search = observer(() => {
       <h1 className={classNames(search.fetching && commonCss.fancyTextAnimation)}>LocalPlexity</h1>
 
       <SearchInput/>
-
-      {/*{search.statusText &&*/}
-      {/*  <div className={classNames(css.status, commonCss.fancyTextAnimation)}>{search.statusText}</div>}*/}
 
       {error && <div className={css.error}>{error.message}</div>}
 
