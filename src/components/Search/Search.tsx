@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SearchProvider, useSearchStore} from "@src/stores/SearchStore";
 import {observer} from "mobx-react-lite";
 import MarkdownPreview from "@uiw/react-markdown-preview";
@@ -49,6 +49,10 @@ const SearchInput = observer(() => {
             if (e.key === 'Enter') {
               e.preventDefault();
               e.stopPropagation();
+
+              if (search.fetching) {
+                return;
+              }
 
               if(autocompleteIndex >= 0) {
                 search.setQuery(search.autocompleteResults[autocompleteIndex]);
