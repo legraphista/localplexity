@@ -98,9 +98,9 @@ class WebLLM {
         // sliding window with glued start
         attention_sink_size: 256,
         ...(this.isSmallModel ? {
-          repetition_penalty: 1.2,
-          frequency_penalty: 0.3,
-        }: {})
+          repetition_penalty: 1.1,
+          frequency_penalty: 0.15,
+        } : {})
       });
 
       // save the model name after we successfully loaded it
