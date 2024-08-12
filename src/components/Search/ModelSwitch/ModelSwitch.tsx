@@ -1,10 +1,10 @@
 import React from 'react';
 import * as Switch from '@radix-ui/react-switch';
-import css from './ModelSwitch.module.scss'
+import css from './ModelSwitch.module.scss';
 
 import FeatherIcon from '@assets/icons/feather.svg';
 import LightBulbIcon from '@assets/icons/light-bulb-idea.svg';
-import classNames from "classnames";
+import classNames from 'classnames';
 
 type Props = {
   value: boolean;
@@ -13,7 +13,7 @@ type Props = {
   label?: string;
   disabled?: boolean;
 }
-export const ModelSwitch = ({className, onChange, value, label, disabled}: Props) => (
+export const ModelSwitch = ({ className, onChange, value, label, disabled }: Props) => (
   <form>
     <div className={classNames(css.root, className)}>
 
@@ -30,18 +30,24 @@ export const ModelSwitch = ({className, onChange, value, label, disabled}: Props
         checked={value}
         disabled={disabled}
       >
-        <img
-          src={FeatherIcon}
-          alt="Small LLM"
-          className={css.leftImage}
-        />
-        <img
-          src={LightBulbIcon}
-          alt="Big LLM"
-          className={css.rightImage}
-        />
+        <div className={css.left}>
+          <img
+            src={FeatherIcon}
+            alt="Small LLM"
+          />
+          <div>small</div>
+        </div>
 
-        <Switch.Thumb className={css.SwitchThumb}/>
+        <div className={css.right}>
+          <span>smart</span>
+          <img
+            src={LightBulbIcon}
+            alt="Big LLM"
+          />
+        </div>
+
+
+        <Switch.Thumb className={css.SwitchThumb} />
       </Switch.Root>
     </div>
   </form>

@@ -4,9 +4,10 @@
   display: flex;
   align-items: center;
 
-  $width: 64px;
+  $width: 140px;
   $height: 28px;
-  $button-size: 26px;
+  $button-height: 26px;
+  $button-width: 70px;
 
   /* reset */
   button {
@@ -37,8 +38,8 @@
 
   .SwitchThumb {
     display: block;
-    width: $button-size;
-    height: $button-size;
+    width: $button-width;
+    height: $button-height;
     background-color: white;
     border-radius: 9999px;
     box-shadow: 0 2px 2px var(--black-a7);
@@ -50,7 +51,7 @@
   }
 
   .SwitchThumb[data-state='checked'] {
-    transform: translateX($width - $button-size - 2px);
+    transform: translateX($width - $button-width - 2px);
   }
 
   .Label {
@@ -60,19 +61,42 @@
     padding-right: 15px
   }
 
-  .leftImage {
+  .left {
     position: absolute;
     left: 4px;
     top: 4px;
-    width: $button-size - 4px;
-    height: $button-size - 4px;
-  }
+    color: white;
+    font-size: 14px;
 
-  .rightImage {
+    width: 60px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: $button-height - 4px;
+      height: $button-height - 4px;
+    }
+
+  }
+  .right {
     position: absolute;
     right: 4px;
     top: 4px;
-    width: $button-size - 4px;
-    height: $button-size - 4px;
+    color: white;
+    font-size: 14px;
+    width: 60px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: $button-height - 4px;
+      height: $button-height - 4px;
+      transform: translateY(-2px);
+    }
   }
+
 }

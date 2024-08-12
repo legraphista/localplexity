@@ -85,7 +85,7 @@ const SearchInput = observer(() => {
           value={!webLLM.isSmallModel}
           onChange={webLLM.toggleModel}
           disabled={webLLM.status.loading || search.fetching}
-          label="Inteligence"
+          label="Intelligence:"
         />
 
         {(webLLM.status.loading && webLLM.status.stepName)
