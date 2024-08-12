@@ -52,7 +52,8 @@
 
   .inputContainer {
     position: relative;
-
+    display: flex;
+    flex-direction: column;
 
     input {
       color: #ccc;
@@ -61,7 +62,7 @@
       padding: 0.5em;
       border: none;
       background: transparent;
-      width: 100%;
+      //width: 100%;
 
       &::placeholder {
         color: rgba(204, 204, 204, 0.5);
