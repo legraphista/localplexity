@@ -1,6 +1,5 @@
 import {action, computed, makeObservable, observable, reaction, runInAction} from "mobx";
 import {Lock} from "async-await-mutex-lock";
-import type {LLMChatPipeline} from "@mlc-ai/web-llm/lib/llm_chat";
 import type {ChatCompletionMessageParam} from "@mlc-ai/web-llm/lib/openai_api_protocols/chat_completion";
 import type {MLCEngine} from "@mlc-ai/web-llm";
 
@@ -20,6 +19,9 @@ class WebLLMStatus {
       ? this.chunks[0] / this.chunks[1]
       : 0;
   }
+
+  @observable
+  loadError: Error | null = null;
 
   constructor() {
     makeObservable(this);
@@ -46,10 +48,14 @@ class WebLLM {
   }
 
   private engine: MLCEngine | null = null;
-  private tokenizer: {
+
+  get tokenizer(): {
     encode: (text: string) => Int32Array[];
     decode: (ids: Int32Array[]) => string;
-  } | null = null;
+  } | null {
+    // @ts-ignore
+    return this.engine?.getPipeline().tokenizer || null;
+  }
 
   private __LLM_LOCK = new Lock();
   private __loaded = false;
@@ -97,17 +103,15 @@ class WebLLM {
         }: {})
       });
 
-      // @ts-ignore
-      const pipeline = this.engine.getPipeline() as LLMChatPipeline;
-
-      // @ts-ignore
-      this.tokenizer = pipeline.tokenizer;
-
       // save the model name after we successfully loaded it
       this.savePreferredModelName();
-
-      this.status.setLoading(false);
+    } catch (e) {
+      runInAction(() => {
+        this.status.loadError = e;
+      })
+      throw e;
     } finally {
+      this.status.setLoading(false);
       this.__LLM_LOCK.release();
     }
   }

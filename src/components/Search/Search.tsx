@@ -108,6 +108,7 @@ const _Search = observer(() => {
 
   const search = useSearchStore();
   const error = search.error;
+  const llmError = webLLM.status.loadError;
 
   const [showIntro, setShowIntro] = useState(true);
   useEffect(() => {
@@ -122,7 +123,11 @@ const _Search = observer(() => {
 
       <SearchInput/>
 
-      {error && <div className={css.error}>{error.message}</div>}
+      {error && <div className={css.error}>Error: {error.message}</div>}
+      {llmError && <div className={css.error}>
+        Oops, looks like we can't load the LLM model on this system. <br/>
+        Error: {llmError.message}
+      </div>}
 
       {search.summary.text && (<>
         <MarkdownPreview source={search.summary.text} className={css.textOutput}/>
