@@ -91,6 +91,10 @@ class WebLLM {
         sliding_window_size: 4096,
         // sliding window with glued start
         attention_sink_size: 256,
+        ...(this.isSmallModel ? {
+          repetition_penalty: 1.2,
+          frequency_penalty: 0.3,
+        }: {})
       });
 
       // @ts-ignore
