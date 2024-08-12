@@ -35,11 +35,11 @@ export const ModelSwitch = ({ className, onChange, value, label, disabled }: Pro
             src={FeatherIcon}
             alt="Small LLM"
           />
-          <div>small</div>
+          <div>basic</div>
         </div>
 
         <div className={css.right}>
-          <span>smart</span>
+          <span>better</span>
           <img
             src={LightBulbIcon}
             alt="Big LLM"
